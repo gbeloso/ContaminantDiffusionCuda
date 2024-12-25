@@ -62,9 +62,12 @@ int main(int argc, char ** argv)
     int size = N * N * depth * sizeof(double);
     int h_num = atoi(argv[1]);
 
-    char arquivo[100];
-    sprintf(arquivo, "%d_cuda.csv", h_num);
-    FILE * saida = fopen(arquivo, "w+");
+    char arquivo_matriz[100];
+    sprintf(arquivo_matriz, "%d_matriz_cuda.csv", h_num);
+    FILE * saida_matriz = fopen(arquivo_matriz, "w+");
+    char arquivo_diff[100];
+    sprintf(arquivo_diff, "%d_diff_cuda.csv", h_num);
+    FILE * saida_diff = fopen(arquivo_diff, "w+");
 
     // Alocação no Host
     double *h_C = (double *)malloc(size);
@@ -101,7 +104,7 @@ int main(int argc, char ** argv)
             for(int i = 0; i < blocksPerGridReduce; i++){
                 diffMedio+=h_partialSums[i];
             }
-            printf("interacao %d - diferenca=%g\n", t, diffMedio/((N-2)*(N-2)));
+            fprintf(saida_diff, "%d,%g\n", t, diffMedio/((N-2)*(N-2)));
         }
     
     }
@@ -113,10 +116,10 @@ int main(int argc, char ** argv)
         for (int j = 0; j < N; j++) {
             int index = ((h_num%2) * N * N) + (i * N) + j;
             if(j==N-1){
-                fprintf(saida, "%f\n", h_C[index]);
+                fprintf(saida_matriz, "%f\n", h_C[index]);
             }
             else{
-                fprintf(saida, "%f,", h_C[index]);
+                fprintf(saida_matriz, "%f,", h_C[index]);
             }
         }
     }
@@ -127,5 +130,7 @@ int main(int argc, char ** argv)
     cudaFree(d_reductionMatrix);
     cudaFree(d_partialSums);
     free(h_C);
+    fclose(saida_diff);
+    fclose(saida_matriz);
 
 } 

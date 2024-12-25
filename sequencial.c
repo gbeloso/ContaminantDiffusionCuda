@@ -8,6 +8,8 @@
 # define DELTA_T 0.01
 # define DELTA_X 1.0
 
+FILE * saida_diff;
+
 void diff_eq(double ***C, int T) {
     double difmedio = 0.0;
     for (int t = 0; t < T; t++) {
@@ -18,16 +20,19 @@ void diff_eq(double ***C, int T) {
             }
         }
         if ((t%100) == 0)
-          printf("interacao %d - diferenca=%g\n", t, difmedio/((N-2)*(N-2)));
+          fprintf(saida_diff, "%d,%g\n", t, difmedio/((N-2)*(N-2)));
     }
 }
 
 int main(int argc, char ** argv) {
     int T = atoi(argv[1]);
 
-    char arquivo[100];
-    sprintf(arquivo, "%d_sequencial.csv", T);
-    FILE * saida = fopen(arquivo, "w+");
+    char arquivo_matriz[100];
+    char arquivo_diff[100];
+    sprintf(arquivo_matriz, "%d_matriz_sequencial.csv", T);
+    sprintf(arquivo_diff, "%d_diff_sequencial.csv", T);
+    FILE * saida_matriz = fopen(arquivo_matriz, "w+");
+    saida_diff = fopen(arquivo_diff, "w+");
 
     double ***C = (double ***)malloc(2 * sizeof(double **));
     for(int t = 0; t<2; t++){
@@ -53,10 +58,10 @@ int main(int argc, char ** argv) {
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
             if(j == N-1){
-                fprintf(saida, "%f\n", C[T%2][i][j]);
+                fprintf(saida_matriz, "%f\n", C[T%2][i][j]);
             }
             else{
-                fprintf(saida, "%f,", C[T%2][i][j]);
+                fprintf(saida_matriz, "%f,", C[T%2][i][j]);
             }
         }
     }
@@ -68,6 +73,8 @@ int main(int argc, char ** argv) {
         free(C[t]);
     }
     free(C);
+    fclose(saida_matriz);
+    fclose(saida_diff);
 
     return 0;
 }
