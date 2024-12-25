@@ -3,7 +3,8 @@
 # include <omp.h>
 # include<math.h>
 
-# define N 2000 // Tamanho da grade
+//# define N 2000 // Tamanho da grade
+int N = 0;
 # define D 0.1 // Coeficiente de difusão
 # define DELTA_T 0.01
 # define DELTA_X 1.0
@@ -25,7 +26,12 @@ void diff_eq(double ***C, int T) {
 }
 
 int main(int argc, char ** argv) {
+    if(argc < 3){
+        printf("./sequencial n_iteracoes tamanho_matriz\n");
+        exit(0);
+    }
     int T = atoi(argv[1]);
+    N = atoi(argv[2]);
 
     char arquivo_matriz[100];
     char arquivo_diff[100];

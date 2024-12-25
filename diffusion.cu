@@ -2,12 +2,12 @@
 #include <math.h>
 #include <stdlib.h>
 
-#define N 2000
+int N = 0;
 #define D 0.1
 #define DELTA_T 0.01
 #define DELTA_X 1.0
 
-__global__ void diff_eq(double * vet, double * reductionMatrix, int num)
+__global__ void diff_eq(double * vet, double * reductionMatrix, int num, int N)
 {
     int x = threadIdx.x + blockIdx.x * blockDim.x;
     int y = threadIdx.y + blockIdx.y * blockDim.y;
@@ -58,9 +58,15 @@ __global__ void reduceSum(double *input, double *output, int size) {
 
 int main(int argc, char ** argv)
 {
+    if(argc < 3){
+        printf("./diffusion n_iteracoes tamanho_matriz\n");
+        exit(0);
+    }
+
+    int h_num = atoi(argv[1]);
+    N = atoi(argv[2]);
     int depth = 2;
     int size = N * N * depth * sizeof(double);
-    int h_num = atoi(argv[1]);
 
     char arquivo_matriz[100];
     sprintf(arquivo_matriz, "%d_matriz_cuda.csv", h_num);
@@ -72,8 +78,9 @@ int main(int argc, char ** argv)
     // Alocação no Host
     double *h_C = (double *)malloc(size);
     double *h_partialSums = (double *)malloc(ceil((N*N)/1024) * sizeof(double));
-    double *d_C, *d_reductionMatrix, *d_partialSums;
 
+    //Alocação no device
+    double *d_C, *d_reductionMatrix, *d_partialSums;
     cudaMalloc((void **)&d_C, size);
     cudaMalloc((void **)&d_reductionMatrix, N * N *sizeof(double));
     cudaMalloc((void **)&d_partialSums, ceil((N*N)/1024) * sizeof(double));
@@ -94,7 +101,7 @@ int main(int argc, char ** argv)
     
     for(int t = 0; t < h_num; t++){
         
-        diff_eq<<<blocksPerGrid, threadsPerBlock>>>(d_C, d_reductionMatrix, t);
+        diff_eq<<<blocksPerGrid, threadsPerBlock>>>(d_C, d_reductionMatrix, t, N);
         cudaDeviceSynchronize();
 
         if(t%100 == 0){
@@ -130,7 +137,7 @@ int main(int argc, char ** argv)
     cudaFree(d_reductionMatrix);
     cudaFree(d_partialSums);
     free(h_C);
+    free(h_partialSums);
     fclose(saida_diff);
     fclose(saida_matriz);
-
 } 
