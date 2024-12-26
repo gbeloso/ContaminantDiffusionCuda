@@ -69,10 +69,10 @@ int main(int argc, char ** argv)
     int size = N * N * depth * sizeof(double);
 
     char arquivo_matriz[200];
-    sprintf(arquivo_matriz, "/home/belos/Documents/ContaminantDiffusionCuda/results/cuda/%d_matriz_cuda.csv", h_num);
+    sprintf(arquivo_matriz, "results/cuda/matriz/%d_%d.csv", N, h_num);
     FILE * saida_matriz = fopen(arquivo_matriz, "w+");
     char arquivo_diff[200];
-    sprintf(arquivo_diff, "/home/belos/Documents/ContaminantDiffusionCuda/results/cuda/%d_diff_cuda.csv", h_num);
+    sprintf(arquivo_diff, "results/cuda/diff/%d_%d.csv", N, h_num);
     FILE * saida_diff = fopen(arquivo_diff, "w+");
 
     // Alocação no Host
