@@ -35,8 +35,8 @@ int main(int argc, char ** argv) {
 
     char arquivo_matriz[100];
     char arquivo_diff[100];
-    sprintf(arquivo_matriz, "%d_matriz_sequencial.csv", T);
-    sprintf(arquivo_diff, "%d_diff_sequencial.csv", T);
+    sprintf(arquivo_matriz, "/home/belos/Documents/ContaminantDiffusionCuda/results/seq/%d_matriz_sequencial.csv", T);
+    sprintf(arquivo_diff, "/home/belos/Documents/ContaminantDiffusionCuda/results/seq/%d_diff_sequencial.csv", T);
     FILE * saida_matriz = fopen(arquivo_matriz, "w+");
     saida_diff = fopen(arquivo_diff, "w+");
 
