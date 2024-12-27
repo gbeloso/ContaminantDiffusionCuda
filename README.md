@@ -35,13 +35,18 @@ git clone https://github.com/gbeloso/ContaminantDiffusionCuda
 ```
 
 <h3>Starting</h3>
+After cloning, in the makefile change the architecture to match your GPU
 
 ```bash
 cd ContaminantDiffusionCuda
-nvcc -o v difusion.cu -arch=your_architecture
-./difusion iteration_numbers
-gcc sequencial.c -o sequencial
-./sequencial iteration_numbers
+make
+./tests/test_cuda.sh
+./tests/test_seq.sh
+```
+to run again first you need to execute:
+
+```bash
+make clean
 ```
 
 <h3>Documentations that might help</h3>
