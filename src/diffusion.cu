@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <time.h>
 
 int N = 0;
 #define D 0.1
@@ -59,12 +60,12 @@ __global__ void reduceSum(double *input, double *output, int size) {
 int main(int argc, char ** argv)
 {
     if(argc < 3){
-        printf("./diffusion n_iteracoes tamanho_matriz\n");
+        printf("./diffusion tamanho_matriz n_iteracoes\n");
         exit(0);
     }
 
-    int h_num = atoi(argv[1]);
-    N = atoi(argv[2]);
+    int h_num = atoi(argv[2]);
+    N = atoi(argv[1]);
     int depth = 2;
     int size = N * N * depth * sizeof(double);
 
@@ -74,6 +75,7 @@ int main(int argc, char ** argv)
     char arquivo_diff[200];
     sprintf(arquivo_diff, "results/cuda/diff/%d_%d.csv", N, h_num);
     FILE * saida_diff = fopen(arquivo_diff, "w+");
+    FILE * saida_tempo = fopen("results/cuda/time.csv", "a+");
 
     // Alocação no Host
     double *h_C = (double *)malloc(size);
@@ -98,7 +100,9 @@ int main(int argc, char ** argv)
     int threadsPerBlockReduce = 1024;
     int blocksPerGridReduce = ceil((N*N)/threadsPerBlockReduce);
     size_t sharedMemSize = threadsPerBlockReduce * sizeof(double);
-    
+
+    clock_t start = clock();
+
     for(int t = 0; t < h_num; t++){
         
         diff_eq<<<blocksPerGrid, threadsPerBlock>>>(d_C, d_reductionMatrix, t, N);
@@ -118,6 +122,9 @@ int main(int argc, char ** argv)
 
     cudaMemcpy(h_C, d_C, size, cudaMemcpyDeviceToHost );
 
+    clock_t end = clock();
+
+    fprintf(saida_tempo,"%d,%d,%g\n", N,h_num,((double)(end - start)) / CLOCKS_PER_SEC);
 
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {

@@ -1,7 +1,8 @@
-# include <stdio.h>
-# include <stdlib.h>
-# include <omp.h>
-# include<math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <omp.h>
+#include <math.h>
+#include <time.h>
 
 //# define N 2000 // Tamanho da grade
 int N = 0;
@@ -27,18 +28,19 @@ void diff_eq(double ***C, int T) {
 
 int main(int argc, char ** argv) {
     if(argc < 3){
-        printf("./sequencial n_iteracoes tamanho_matriz\n");
+        printf("./sequencial tamanho_matriz n_iteracoes\n");
         exit(0);
     }
-    int T = atoi(argv[1]);
-    N = atoi(argv[2]);
+    int T = atoi(argv[2]);
+    N = atoi(argv[1]);
 
     char arquivo_matriz[100];
     char arquivo_diff[100];
-    sprintf(arquivo_matriz, "/home/belos/Documents/ContaminantDiffusionCuda/results/seq/matriz/%d_%d.csv", N, T);
-    sprintf(arquivo_diff, "/home/belos/Documents/ContaminantDiffusionCuda/results/seq/diff/%d_%d.csv", N, T);
+    sprintf(arquivo_matriz, "results/seq/matriz/%d_%d.csv", N, T);
+    sprintf(arquivo_diff, "results/seq/diff/%d_%d.csv", N, T);
     FILE * saida_matriz = fopen(arquivo_matriz, "w+");
     saida_diff = fopen(arquivo_diff, "w+");
+    FILE * saida_tempo = fopen("results/seq/time.csv", "a+");
 
     double ***C = (double ***)malloc(2 * sizeof(double **));
     for(int t = 0; t<2; t++){
@@ -55,10 +57,15 @@ int main(int argc, char ** argv) {
                 C[t][i][j] = 0.0;
 
     C[0][N/2][N/2] = 1.0; // Inicializar uma concentração alta no centro
-    
+
+    clock_t start = clock();
+
     diff_eq(C, T);// Executar a equação de difusão
     
-    
+    clock_t end = clock();
+
+    fprintf(saida_tempo,"%d,%d,%g\n", N,T,((double)(end - start)) / CLOCKS_PER_SEC);
+
     printf("Concentração final no centro: %f\n", C[T%2][N/2][N/2]); // Exibir resultado para verificação
 
     for (int i = 0; i < N; i++) {
@@ -81,6 +88,5 @@ int main(int argc, char ** argv) {
     free(C);
     fclose(saida_matriz);
     fclose(saida_diff);
-
     return 0;
 }
