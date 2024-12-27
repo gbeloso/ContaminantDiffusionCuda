@@ -35,7 +35,7 @@ git clone https://github.com/gbeloso/ContaminantDiffusionCuda
 ```
 
 <h3>Starting</h3>
-After cloning, in the makefile change the architecture to match your GPU
+After cloning, in the makefile change the architecture to match your GPU, this link can help: https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#gpu-feature-list
 
 ```bash
 cd ContaminantDiffusionCuda
